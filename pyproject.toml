@@ -1,0 +1,30 @@
+[project]
+name = "ibkr_service"
+version = "0.1.0"
+description = "ibkr service that contains all strategies and logic for trading on the cash account"
+authors = [
+    {name = "Rayan", email = "rayanthefirst@gmail.com"},
+]
+dependencies = [
+    "requests>=2.31.0",
+    "fastapi>=0.103.2",
+    "uvicorn>=0.23.2",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.4.2",
+]
+
+[tool.pdm.scripts]
+_.env_file = ".env"
+local_server = "uvicorn src.api:app --host 0.0.0.0 --port 80 --reload"
+
