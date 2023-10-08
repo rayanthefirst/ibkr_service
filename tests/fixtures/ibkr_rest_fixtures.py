@@ -1,0 +1,72 @@
+import pytest
+
+@pytest.fixture
+def get_account_positions():
+  return [
+    {
+        "acctId": "U2046687",
+        "conid": 653744012,
+        "contractDesc": "ASTR",
+        "position": 40.0,
+        "mktPrice": 1.53066005,
+        "mktValue": 61.23,
+        "currency": "USD",
+        "avgCost": 109.2668425,
+        "avgPrice": 109.2668425,
+        "realizedPnl": 0.0,
+        "unrealizedPnl": -4309.45,
+        "exchs": None,
+        "expiry": None,
+        "putOrCall": None,
+        "multiplier": None,
+        "strike": 0.0,
+        "exerciseStyle": None,
+        "conExchMap": [],
+        "assetClass": "STK",
+        "undConid": 0
+    },
+    {
+        "acctId": "U2046687",
+        "conid": 649388692,
+        "contractDesc": "EXPR",
+        "position": 15.0,
+        "mktPrice": 8.3999996,
+        "mktValue": 126.0,
+        "currency": "USD",
+        "avgCost": 63.4803,
+        "avgPrice": 63.4803,
+        "realizedPnl": 0.0,
+        "unrealizedPnl": -826.2,
+        "exchs": None,
+        "expiry": None,
+        "putOrCall": None,
+        "multiplier": None,
+        "strike": 0.0,
+        "exerciseStyle": None,
+        "conExchMap": [],
+        "assetClass": "STK",
+        "undConid": 0
+    },
+    {
+        "acctId": "U2046687",
+        "conid": 388824891,
+        "contractDesc": "SPCE",
+        "position": 200.0,
+        "mktPrice": 1.65999995,
+        "mktValue": 332.0,
+        "currency": "USD",
+        "avgCost": 27.9658605,
+        "avgPrice": 27.9658605,
+        "realizedPnl": 0.0,
+        "unrealizedPnl": -5261.17,
+        "exchs": None,
+        "expiry": None,
+        "putOrCall": None,
+        "multiplier": None,
+        "strike": 0.0,
+        "exerciseStyle": None,
+        "conExchMap": [],
+        "assetClass": "STK",
+        "undConid": 0
+    }
+]

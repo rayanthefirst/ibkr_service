@@ -5,6 +5,7 @@ import calendar
 import logging
 import time
 import warnings
+from decimal import Decimal
 
 from requests import Response, get, post, delete
 from urllib3.exceptions import InsecureRequestWarning
@@ -34,6 +35,7 @@ class IBKR_Rest_Client(BasePlatformClient):
             logger.error(f"IBKR REST Error: {resp.json()}")
             raise Exception(f"IBKR REST Error: {resp.json()['error']}")
         else:
+            logger.error(f"Client Error: {resp.json()}")
             raise Exception(f"Client Error: {resp.json()['error']}")
 
     def ibkr_get_request(self, uri_path: str, params: dict = None) -> Response:
@@ -61,11 +63,11 @@ class IBKR_Rest_Client(BasePlatformClient):
             try:
                 accountPositions = [
                     {
-                        "position": pos["position"],
+                        "position": Decimal(pos["position"]),
                         "currency": pos["currency"],
                         "expiry": pos["expiry"],
                         "putOrCall": pos["putOrCall"],
-                        "strike": pos["strike"],
+                        "strike": Decimal(pos["strike"]),
                         "assetClass": pos["assetClass"],
                         "ticker": pos["ticker"],
                     }
@@ -78,11 +80,11 @@ class IBKR_Rest_Client(BasePlatformClient):
 
                 accountCash = [
                     {
-                        "position": pos["cashbalance"],
+                        "position": Decimal(pos["cashbalance"]),
                         "currency": k,
                         "expiry": None,
                         "putOrCall": None,
-                        "strike": 0,
+                        "strike": Decimal(0),
                         "assetClass": "CASH",
                         "ticker": k,
                     }
@@ -101,13 +103,13 @@ class IBKR_Rest_Client(BasePlatformClient):
 
     def place_mkt_order(
         self,
-        quantity: float,
+        quantity: Decimal,
         action: str,
         timeInForce: str,
         symbol: str,
         secType: str,
         expiryDate: str = None,
-        strike: float = None,
+        strike: Decimal = None,
         right: str = None,
     ):
         conid = self.get_instrument_conid(symbol, secType, expiryDate, strike, right)
@@ -145,15 +147,15 @@ class IBKR_Rest_Client(BasePlatformClient):
 
     def place_trail_order(
         self,
-        quantity: float,
+        quantity: Decimal,
         action: str,
         timeInForce: str,
-        trlAmtOrPrc: float,
+        trlAmtOrPrc: Decimal,
         trlType: str,
         symbol: str,
         secType: str,
         expiryDate: str = None,
-        strike: float = None,
+        strike: Decimal = None,
         right: str = None,
     ):
         conid = self.get_instrument_conid(symbol, secType, expiryDate, strike, right)
@@ -196,7 +198,7 @@ class IBKR_Rest_Client(BasePlatformClient):
         symbol: str,
         secType: str,
         expiryDate: str = None,
-        strike: float = None,
+        strike: Decimal = None,
         right: str = None,
     ):
         """
@@ -245,7 +247,7 @@ class IBKR_Rest_Client(BasePlatformClient):
         elif secType == stock_secType:
             return underlyingConid
 
-    def get_live_orders(self):
+    def get_live_orders(self): #Filled, 
         live_orders = self.ibkr_get_request("/iserver/account/orders")["orders"]
         return live_orders
 

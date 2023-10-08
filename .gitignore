@@ -2,3 +2,21 @@ venv
 *__pycache__
 logs
 *venv
+
+# PDM (Python Dependency Management)
+__pypackages__/
+pyproject.lock
+.pdm.toml
+
+# Other typical Python ignores
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.seed
+.DS_Store
