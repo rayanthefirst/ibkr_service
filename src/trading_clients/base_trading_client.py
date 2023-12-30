@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class BasePlatformClient(ABC):
+class BaseTradingClient(ABC):
     """Abstract base class which encapsulates necessary functions from trading platforms"""
 
     @abstractmethod

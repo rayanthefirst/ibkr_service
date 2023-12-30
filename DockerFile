@@ -1,11 +1,35 @@
-FROM python:3.8
+# Use the official Python image from the DockerHub
+FROM python:3.10-slim
 
+# Set the working directory in docker
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
+# Set environment variables
+# PYTHONDONTWRITEBYTECODE: Prevents Python from writing pyc files to disc
+# PYTHONUNBUFFERED: Prevents Python from buffering stdout and stderr
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=off
 
-RUN pip3 install -r requirements.txt
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY . .
+# Install PDM (Python dependency manager) and configure it
+RUN pip install pdm && pdm config python.use_venv false
 
-CMD ["python3", "-u", "src/main.py"]
+# Copy the pyproject.toml and pdm.lock files
+COPY pyproject.toml pdm.lock ./
+
+COPY README.md ./
+
+# Install project dependencies
+RUN pdm sync
+
+# Copy the content of the local src directory to the working directory
+COPY src/ ./src/
+
+# Specify the command to run on container start
+CMD ["pdm", "run", "local_server"]

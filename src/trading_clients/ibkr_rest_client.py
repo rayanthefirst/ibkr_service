@@ -10,11 +10,11 @@ from decimal import Decimal
 from requests import Response, get, post, delete
 from urllib3.exceptions import InsecureRequestWarning
 from src.sec_def import option_secType, stock_secType
-from src.config import IBKR_CASH_ACCOUNT_ID
+from src.config import IBKR_CASH_ACCOUNT_ID, IBEAM_HOST
 
 import src.logging_settings
 
-from src.ibkr_client.base_platform_client import BasePlatformClient
+from ibkr_service.src.trading_clients.base_trading_client import BasePlatformClient
 
 warnings.simplefilter("ignore", InsecureRequestWarning)
 
@@ -25,7 +25,7 @@ class IBKR_Rest_Client(BasePlatformClient):
     """Interactive Brokers REST API Client"""
 
     def __init__(self):
-        self.host_url = "https://localhost:5000/v1/api"
+        self.host_url = f"{IBEAM_HOST}/v1/api"
         self.accountId = IBKR_CASH_ACCOUNT_ID
 
     def check_response(self, resp: Response) -> bool:
@@ -33,10 +33,12 @@ class IBKR_Rest_Client(BasePlatformClient):
             return True
         elif resp.status_code != 200:
             logger.error(f"IBKR REST Error: {resp.json()}")
-            raise Exception(f"IBKR REST Error: {resp.json()['error']}")
+            # raise Exception(f"IBKR REST Error: {resp.json()['error']}")
+            print(resp.json())
         else:
             logger.error(f"Client Error: {resp.json()}")
-            raise Exception(f"Client Error: {resp.json()['error']}")
+            # raise Exception(f"Client Error: {resp.json()['error']}")
+            print(resp.json())
 
     def ibkr_get_request(self, uri_path: str, params: dict = None) -> Response:
         resp = get(self.host_url + uri_path, params=params, verify=False)
@@ -94,12 +96,12 @@ class IBKR_Rest_Client(BasePlatformClient):
                     if k != "BASE"
                 ]
 
+                return accountPositions + accountCash
+
             except KeyError:
                 time.sleep(0.01)
             else:
                 break
-
-        return accountPositions + accountCash
 
     def place_mkt_order(
         self,
@@ -247,7 +249,7 @@ class IBKR_Rest_Client(BasePlatformClient):
         elif secType == stock_secType:
             return underlyingConid
 
-    def get_live_orders(self): #Filled, 
+    def get_live_orders(self):  # Filled,
         live_orders = self.ibkr_get_request("/iserver/account/orders")["orders"]
         return live_orders
 

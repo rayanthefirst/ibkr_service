@@ -4,7 +4,7 @@ Designed for IBKR single account
 import logging
 
 from fastapi import FastAPI, Body
-from src.ibkr_client.ibkr_rest_client import IBKR_Rest_Client
+from src.trading_clients.ibkr_rest_client import IBKR_Rest_Client
 from decimal import Decimal
 
 import src.logging_settings
@@ -16,9 +16,12 @@ app = FastAPI()
 ibkr_rest_client = IBKR_Rest_Client()
 active_strategies = []
 
+
 @app.get("/portfolio/info")
 async def get_portfolio_info():
-    return ibkr_rest_client.get_portfolio_info()
+    logger.info(ibkr_rest_client.get_portfolio_info())
+    # return
+
 
 @app.post("/orders/market")
 async def place_market_order(
@@ -31,7 +34,10 @@ async def place_market_order(
     strike: Decimal = Body(None),
     right: str = Body(None),
 ):
-    return ibkr_rest_client.place_mkt_order(quantity, action, timeInForce, symbol, secType, expiryDate, strike, right)
+    return ibkr_rest_client.place_mkt_order(
+        quantity, action, timeInForce, symbol, secType, expiryDate, strike, right
+    )
+
 
 @app.post("/orders/trail")
 async def place_trail_order(
@@ -46,7 +52,19 @@ async def place_trail_order(
     strike: Decimal = Body(None),
     right: str = Body(None),
 ):
-    return ibkr_rest_client.place_trail_order(quantity, action, timeInForce, trlAmtOrPrc, trlType, symbol, secType, expiryDate, strike, right)
+    return ibkr_rest_client.place_trail_order(
+        quantity,
+        action,
+        timeInForce,
+        trlAmtOrPrc,
+        trlType,
+        symbol,
+        secType,
+        expiryDate,
+        strike,
+        right,
+    )
+
 
 @app.post("/instrument/conid")
 async def get_instrument_conid(
@@ -56,15 +74,20 @@ async def get_instrument_conid(
     strike: Decimal = Body(None),
     right: str = Body(None),
 ):
-    return ibkr_rest_client.get_instrument_conid(symbol, secType, expiryDate, strike, right)
+    return ibkr_rest_client.get_instrument_conid(
+        symbol, secType, expiryDate, strike, right
+    )
+
 
 @app.get("/orders/live")
 async def get_live_orders():
     return ibkr_rest_client.get_live_orders()
 
+
 @app.get("/order/status/{orderId}")
 async def get_order_status(orderId: int):
     return ibkr_rest_client.get_order_status(orderId)
+
 
 @app.delete("/order/{orderId}")
 async def cancel_order(orderId: int):
