@@ -20,3 +20,6 @@ __pycache__/
 *.pid
 *.seed
 .DS_Store
+
+
+.env

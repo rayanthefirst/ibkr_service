@@ -9,12 +9,12 @@ from decimal import Decimal
 
 from requests import Response, get, post, delete
 from urllib3.exceptions import InsecureRequestWarning
-from src.sec_def import option_secType, stock_secType
-from src.config import IBKR_CASH_ACCOUNT_ID, IBEAM_HOST
+from sec_def import option_secType, stock_secType
+from config import IBKR_CASH_ACCOUNT_ID, IBEAM_HOST
 
-import src.logging_settings
+import logging_settings
 
-from ibkr_service.src.trading_clients.base_trading_client import BasePlatformClient
+from trading_clients.base_trading_client import BasePlatformClient
 
 warnings.simplefilter("ignore", InsecureRequestWarning)
 
