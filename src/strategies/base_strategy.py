@@ -27,7 +27,7 @@ class BaseStrategy(ABC):
         initialContract: Contract = None,
         initialPortfolio: Portfolio = None,
     ):
-        self.ibkr_client = trading_client
+        self.trading_client = trading_client
         self.storage_client = storage_client
         self.market_data_client = market_data_client
 
@@ -37,6 +37,7 @@ class BaseStrategy(ABC):
 
         self.strategy_id = BaseStrategy._get_next_id()
         self.is_running = False
+        self.lastFilledOrder = None
 
     @staticmethod
     def _get_next_id():
@@ -56,4 +57,16 @@ class BaseStrategy(ABC):
     @abstractmethod
     def get_strategy_info(self):
         # Implement logic to retrieve trade information
+        pass
+
+    @abstractmethod
+    def get_new_quantity(self):
+        pass
+
+    @abstractmethod
+    def get_new_contract(self):
+        pass
+
+    @abstractmethod
+    def get_new_portfolio(self):
         pass

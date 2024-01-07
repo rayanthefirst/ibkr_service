@@ -35,12 +35,12 @@ email_handler = handlers.SMTPHandler(
     ("smtp.gmail.com", 587),
     "rayanthefirst.dev@gmail.com",
     "rayanthefirst.dev@gmail.com",
-    "Trading Platform API Log",
+    "Trading Bot Error",
     ("rayanthefirst.dev@gmail.com", "nwhzuulhyxsybweu"),
     secure=(),
 )
 email_handler.setFormatter(log_format)
-email_handler.setLevel(logging.WARNING)
+email_handler.setLevel(logging.CRITICAL)
 
 logging.basicConfig(
     datefmt=LOG_DATEFTM,

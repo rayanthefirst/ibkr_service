@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from definitions.order_definitions import OrderState, OrderAction
+from data_classes.contract import Contract
 
 
 class BaseStorageClient(ABC):
@@ -22,20 +24,26 @@ class BaseStorageClient(ABC):
     def write_order(
         self,
         strategy_id,
+        order_id,
         strategy_name,
-        contract,
+        contract: Contract,
         quantity,
-        side,
+        action: OrderAction,
         executedPrice,
-        executedTime,
-        orderState,
+        executedTime: int,  # Unix timestamp UTC in ms
+        orderState: OrderState,
+        **kwargs,
     ):
         pass
 
     @abstractmethod
-    def check_for_active_order(self, strategy_id):
+    def update_order_state(self, strategy_id, order_id, newOrderState: OrderState):
+        pass
+
+    @abstractmethod
+    def check_for_active_orders(self, strategy_id):
         """
-        Check if there is an active order for the strategy id and return it
-        if not return None
+        Check if there is any active orders for the strategy id and return it
+        if not return empty list
         """
         pass

@@ -1,13 +1,12 @@
 from dataclasses import dataclass
+from decimal import Decimal
+from definitions.securities_definitions import TradableSecurity, OptionSide
 
 
 @dataclass
 class Contract:
     symbol: str
-    contract_type: str
-    underlying_symbol: str
-    strike: float
-    expiration_date: str
-    cash: float
-    futures: str
-    # Add more attributes as needed
+    secType: TradableSecurity
+    strike: Decimal = None
+    expiryDate: str = None
+    right: OptionSide = None

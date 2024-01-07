@@ -7,6 +7,8 @@ class BaseMarketDataClient(ABC):
     Remove abastract methods and add common methods for all market data clients.
     """
 
+    name = "BaseMarketDataClient"
+
     @abstractmethod
     def connect(self):
         pass

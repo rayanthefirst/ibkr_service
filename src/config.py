@@ -1,5 +1,8 @@
 import os
 
+SLEEP_SECONDS = 2
+RETRY_COUNT = 3
+
 IBKR_CASH_ACCOUNT_ID = os.getenv("IBKR_CASH_ACCOUNT_ID")
 IBEAM_HOST = os.getenv("IBEAM_HOST")
 

@@ -1,11 +1,9 @@
 from dataclasses import dataclass
+from decimal import Decimal
 
 
 @dataclass
 class Portfolio:
-    account_id: str
-    account_name: str
-    balance: float
+    cashBalance: Decimal
     currency: str
-    is_active: bool
-    numberOfTransactions: int
+    numberOfTransactions: int = 0
