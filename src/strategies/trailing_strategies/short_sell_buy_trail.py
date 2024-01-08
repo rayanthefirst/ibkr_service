@@ -80,7 +80,6 @@ class ShortSellBuyTrail(BaseTrail):
             self.storage_client.write_order(
                 self.strategy_id,
                 newOrderId,
-                self.name,
                 self.contract,
                 self.quantity,
                 action,

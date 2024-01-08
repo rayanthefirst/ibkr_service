@@ -1,0 +1,32 @@
+[project]
+name = "trading_system"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "Rayan", email = "rayanthefirst@gmail.com"},
+]
+dependencies = [
+    "requests>=2.31.0",
+    "fastapi>=0.108.0",
+    "uvicorn>=0.25.0",
+    "pymongo>=4.6.1",
+]
+requires-python = "==3.8.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+package-type = "application"
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "pytest>=7.4.2",
+]
+
+
+
+[tool.pdm.scripts]
+_.env_file = ".env"
+local_server = "python src/api.py"
+local_test = "python src/test.py"

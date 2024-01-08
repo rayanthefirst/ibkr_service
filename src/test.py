@@ -16,9 +16,10 @@ from strategies.trailing_strategies.long_short_buy_sell_trail import (
 import logging_settings
 
 
-ibkr_client = IBKRRestClient()
+# ibkr_client = IBKRRestClient()
 # ibkr_client.get_live_orders()
 # mongo = MongoClient()
+# print(mongo.get_all_strategies())
 # mock_market_data = []
 
 # contract = Contract(
@@ -68,16 +69,16 @@ ibkr_client = IBKRRestClient()
 # orders = mongo.check_for_active_orders(1)
 # print(orders)
 
-order = ibkr_client.place_market_order(
-    100,
-    OrderAction.BUY,
-    OrderTIF.GOOD_TILL_CANCELLED,
-    "AAPL",
-    TradableSecurity.STOCK,
-    # format_date(2024, 1, 5),
-    # 197.5,
-    # OptionSide.CALL,
-)
+# order = ibkr_client.place_market_order(
+#     100,
+#     OrderAction.BUY,
+#     OrderTIF.GOOD_TILL_CANCELLED,
+#     "AAPL",
+#     TradableSecurity.STOCK,
+# format_date(2024, 1, 5),
+# 197.5,
+# OptionSide.CALL,
+# )
 # order = ibkr_client.place_trail_order(
 #     1,
 #     OrderAction.BUY,
@@ -91,7 +92,7 @@ order = ibkr_client.place_market_order(
 #     OptionSide.CALL,
 # )
 
-print(order)
+# print(order)
 
 # while True:
 #     # print(ibkr_client.get_live_orders())
@@ -99,3 +100,13 @@ print(order)
 #     status = ibkr_client.get_order_status(order)
 #     print(status)
 #     time.sleep(1)
+
+import inspect
+
+from strategies.base_strategy import BaseStrategy
+
+sig = inspect.signature(BaseStrategy)
+print(type(sig))
+param_names = [type(param.name) for param in sig.parameters.values()]
+
+print(param_names)

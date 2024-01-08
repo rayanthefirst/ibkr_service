@@ -11,7 +11,7 @@ from trading_clients.ibkr_rest_client.ibkr_definitions import (
     IBKROrderTIF,
     IBKRTrailingStopType,
 )
-from config import IBKR_CASH_ACCOUNT_ID, IBEAM_HOST, SLEEP_SECONDS, RETRY_COUNT
+from config import IBKR_ACCOUNT_ID, IBEAM_HOST, SLEEP_SECONDS, RETRY_COUNT
 from definitions.order_definitions import (
     OrderState,
     OrderAction,
@@ -74,7 +74,7 @@ class IBKRRestClient(BaseTradingClient):
     def connect(self):
         logger.info(f"Connecting to Trading client: {self.name}")
         self.host_url = f"{IBEAM_HOST}/v1/api"
-        self.accountId = IBKR_CASH_ACCOUNT_ID
+        self.accountId = IBKR_ACCOUNT_ID
 
         count = 0
         while True:

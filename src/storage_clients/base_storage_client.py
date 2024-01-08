@@ -4,6 +4,8 @@ from data_classes.contract import Contract
 
 
 class BaseStorageClient(ABC):
+    name = "BaseStorageClient"
+
     @abstractmethod
     def connect(self):
         pass
@@ -13,19 +15,10 @@ class BaseStorageClient(ABC):
         pass
 
     @abstractmethod
-    def write(self, **data):
-        pass
-
-    @abstractmethod
-    def read(self, **data):
-        pass
-
-    @abstractmethod
     def write_order(
         self,
         strategy_id,
         order_id,
-        strategy_name,
         contract: Contract,
         quantity,
         action: OrderAction,
@@ -45,5 +38,12 @@ class BaseStorageClient(ABC):
         """
         Check if there is any active orders for the strategy id and return it
         if not return empty list
+        """
+        pass
+
+    @abstractmethod
+    def get_all_strategies(self):
+        """
+        Get all strategies for the strategy handler
         """
         pass

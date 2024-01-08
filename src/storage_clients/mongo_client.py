@@ -19,6 +19,7 @@ from config import (
     MONGO_CLUSTER,
     MONGO_DATABASE,
     MONGO_DATABASE_COLLECTION,
+    MONGO_DATABASE_COLLECTION_STRATEGY_DATA,
     SLEEP_SECONDS,
     RETRY_COUNT,
 )
@@ -44,6 +45,9 @@ class MongoClient(BaseStorageClient):
 
                 self.db = self.client[MONGO_DATABASE]
                 self.collection = self.db[MONGO_DATABASE_COLLECTION]
+                self.strategyCollection = self.db[
+                    MONGO_DATABASE_COLLECTION_STRATEGY_DATA
+                ]
 
             except Exception:
                 logger.error(f"Error connecting to storage client: {self.name}")
@@ -64,12 +68,12 @@ class MongoClient(BaseStorageClient):
         # Disconnect from the Mongo database
         pass
 
-    def write(self, **data):
+    def write(self, collection, **data):
         # Write data to the Mongo database
         count = 0
         while True:
             try:
-                self.collection.insert_one(data)
+                collection.insert_one(data)
 
             except Exception:
                 logger.error("Error writing to Mongo database")
@@ -84,12 +88,12 @@ class MongoClient(BaseStorageClient):
                 logger.critical("Critical error writing to Mongo database")
                 raise StorageWriteError
 
-    def read(self, **data):
+    def read(self, collection, **data):
         # Read data from the Mongo database
         count = 0
         while True:
             try:
-                resultData = self.collection.find(data)
+                resultData = collection.find(data)
 
             except Exception:
                 logger.error("Error reading from Mongo database")
@@ -108,7 +112,6 @@ class MongoClient(BaseStorageClient):
         self,
         strategy_id,
         order_id,
-        strategy_name,
         contract: Contract,
         quantity,
         action: OrderAction,
@@ -119,9 +122,9 @@ class MongoClient(BaseStorageClient):
     ):
         # Save the order to the database, lastExecutedTime is UTC timestamp in ms
         self.write(
+            self.collection,
             strategy_id=strategy_id,
             order_id=order_id,
-            strategy_name=strategy_name,
             contract={
                 "symbol": contract.symbol,
                 "secType": contract.secType.value,
@@ -162,5 +165,21 @@ class MongoClient(BaseStorageClient):
 
     def check_for_active_orders(self, strategy_id):
         return list(
-            self.read(strategy_id=strategy_id, orderState=OrderState.SUBMITTED.value)
+            self.read(
+                self.collection,
+                strategy_id=strategy_id,
+                orderState=OrderState.SUBMITTED.value,
+            )
+        )
+
+    def get_all_strategies(self):
+        return list(self.read(self.strategyCollection))
+
+    def write_strategy(self, strategy_id, strategy_name, strategy_status, **kwargs):
+        self.write(
+            self.strategyCollection,
+            strategy_id=strategy_id,
+            strategy_name=strategy_name,
+            strategy_status=strategy_status,
+            **kwargs,
         )
