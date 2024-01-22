@@ -12,15 +12,3 @@ class BaseMarketDataClient(ABC):
     @abstractmethod
     def connect(self):
         pass
-
-    @abstractmethod
-    def subscribe(self, symbol):
-        pass
-
-    @abstractmethod
-    def unsubscribe(self, symbol):
-        pass
-
-    @abstractmethod
-    def disconnect(self):
-        pass

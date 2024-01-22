@@ -1,3 +1,6 @@
+# Test Strategy
+from strategies.test_strategy import TestStrategy
+
 # Trailing Strategies
 from strategies.trailing_strategies.long_buy_sell_trail import LongBuySellTrail
 from strategies.trailing_strategies.long_short_buy_sell_trail import (
@@ -9,6 +12,7 @@ from strategies.trailing_strategies.long_short_neutral_buy_sell_trail import (
 )
 
 strategies = {
+    TestStrategy.name: TestStrategy,
     LongBuySellTrail.name: LongBuySellTrail,
     LongShortBuySellTrail.name: LongShortBuySellTrail,
     ShortSellBuyTrail.name: ShortSellBuyTrail,

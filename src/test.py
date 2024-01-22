@@ -15,12 +15,15 @@ from strategies.trailing_strategies.long_short_buy_sell_trail import (
 )
 import logging_settings
 
+from strategy_handler.strategy_handler import StrategyHandler
 
-# ibkr_client = IBKRRestClient()
+
+ibkr_client = IBKRRestClient()
 # ibkr_client.get_live_orders()
-# mongo = MongoClient()
+mongo = MongoClient()
 # print(mongo.get_all_strategies())
 # mock_market_data = []
+strategyhand = StrategyHandler(ibkr_client, None, mongo)
 
 # contract = Contract(
 #     **{
@@ -100,13 +103,14 @@ import logging_settings
 #     status = ibkr_client.get_order_status(order)
 #     print(status)
 #     time.sleep(1)
+# mongo.write_strategy(1, "testName", "Running")
+# mongo.write_strategy(2, "testName", "Running")
+# mongo.write_strategy(3, "testName", "Running")
 
-import inspect
+# print(strategyhand.strategies)
+import pickle
 
-from strategies.base_strategy import BaseStrategy
-
-sig = inspect.signature(BaseStrategy)
-print(type(sig))
-param_names = [type(param.name) for param in sig.parameters.values()]
-
-print(param_names)
+strategy = LongShortBuySellTrail(ibkr_client, mongo, None)
+# strategy.start()
+dump = pickle.dumps(strategy)
+print(dump)

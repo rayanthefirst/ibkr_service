@@ -7,6 +7,7 @@ from data_classes.contract import Contract
 from data_classes.portfolio import Portfolio
 
 from decimal import Decimal
+from uuid import uuid4
 
 
 class BaseStrategy(ABC):
@@ -15,7 +16,6 @@ class BaseStrategy(ABC):
     Strategy specific functions will be implemented in the derived class
     """
 
-    _last_id = 0
     name = "BaseStrategy"
 
     def __init__(
@@ -23,9 +23,11 @@ class BaseStrategy(ABC):
         trading_client: BaseTradingClient,
         storage_client: BaseStorageClient,
         market_data_client: BaseMarketDataClient,
+        strategy_id: str = None,
         initialQuantity: Decimal = None,
         initialContract: Contract = None,
         initialPortfolio: Portfolio = None,
+        **kwargs,
     ):
         self.trading_client = trading_client
         self.storage_client = storage_client
@@ -35,14 +37,9 @@ class BaseStrategy(ABC):
         self.contract = initialContract
         self.portfolio = initialPortfolio
 
-        self.strategy_id = BaseStrategy._get_next_id()
+        self.strategy_id = strategy_id or str(uuid4())
         self.is_running = False
         self.lastFilledOrder = None
-
-    @staticmethod
-    def _get_next_id():
-        BaseStrategy._last_id += 1
-        return BaseStrategy._last_id
 
     @abstractmethod
     def start(self):

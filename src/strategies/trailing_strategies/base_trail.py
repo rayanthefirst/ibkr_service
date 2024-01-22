@@ -35,16 +35,19 @@ class BaseTrail(BaseStrategy):
         trading_client,
         storage_client,
         market_data_client,
+        strategy_id=None,
         initialQuantity=None,
         initialContract=None,
         initialPortfolio=None,
         initialTrlAmtOrPrc: Decimal = None,
         initialTrlType: TrailingStopType = None,
+        **kwargs,
     ):
         super().__init__(
             trading_client,
             storage_client,
             market_data_client,
+            strategy_id,
             initialQuantity,
             initialContract,
             initialPortfolio,
@@ -105,3 +108,6 @@ class BaseTrail(BaseStrategy):
 
     def get_new_portfolio(self) -> Portfolio:
         return self.portfolio
+
+    def update_strategy(self):
+        ...

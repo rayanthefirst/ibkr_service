@@ -4,6 +4,7 @@ import time
 from storage_clients.base_storage_client import BaseStorageClient
 from pymongo.mongo_client import MongoClient as MG
 from definitions.order_definitions import OrderState, OrderAction
+from definitions.strategy_definitions import StrategyStatus
 from data_classes.contract import Contract
 
 from storage_clients.storage_exceptions import (
@@ -11,14 +12,13 @@ from storage_clients.storage_exceptions import (
     StorageWriteError,
     StorageReadError,
     StorageUpdateError,
+    StorageDeleteError,
 )
 
 from config import (
-    MONGO_USERNAME,
-    MONGO_PASSWORD,
-    MONGO_CLUSTER,
+    MONGO_CONNECTION_STRING,
     MONGO_DATABASE,
-    MONGO_DATABASE_COLLECTION,
+    MONGO_DATABASE_COLLECTION_ORDER_DATA,
     MONGO_DATABASE_COLLECTION_STRATEGY_DATA,
     SLEEP_SECONDS,
     RETRY_COUNT,
@@ -39,12 +39,12 @@ class MongoClient(BaseStorageClient):
         count = 0
         while True:
             try:
-                uri = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_CLUSTER}.nlwwpjk.mongodb.net/?retryWrites=true&w=majority"
+                uri = MONGO_CONNECTION_STRING
                 self.client = MG(uri)
                 self.client.admin.command("ping")
 
                 self.db = self.client[MONGO_DATABASE]
-                self.collection = self.db[MONGO_DATABASE_COLLECTION]
+                self.orderCollection = self.db[MONGO_DATABASE_COLLECTION_ORDER_DATA]
                 self.strategyCollection = self.db[
                     MONGO_DATABASE_COLLECTION_STRATEGY_DATA
                 ]
@@ -122,7 +122,7 @@ class MongoClient(BaseStorageClient):
     ):
         # Save the order to the database, lastExecutedTime is UTC timestamp in ms
         self.write(
-            self.collection,
+            self.orderCollection,
             strategy_id=strategy_id,
             order_id=order_id,
             contract={
@@ -145,7 +145,7 @@ class MongoClient(BaseStorageClient):
         count = 0
         while True:
             try:
-                self.collection.update_one(
+                self.orderCollection.update_one(
                     {"strategy_id": strategy_id, "order_id": order_id},
                     {"$set": {"orderState": newOrderState.value}},
                 )
@@ -166,7 +166,7 @@ class MongoClient(BaseStorageClient):
     def check_for_active_orders(self, strategy_id):
         return list(
             self.read(
-                self.collection,
+                self.orderCollection,
                 strategy_id=strategy_id,
                 orderState=OrderState.SUBMITTED.value,
             )
@@ -175,11 +175,56 @@ class MongoClient(BaseStorageClient):
     def get_all_strategies(self):
         return list(self.read(self.strategyCollection))
 
-    def write_strategy(self, strategy_id, strategy_name, strategy_status, **kwargs):
+    def write_strategy(
+        self, strategy_id, strategy_name, strategy_status: StrategyStatus, **kwargs
+    ):
         self.write(
             self.strategyCollection,
             strategy_id=strategy_id,
             strategy_name=strategy_name,
-            strategy_status=strategy_status,
+            strategy_status=strategy_status.value,
             **kwargs,
         )
+
+    def update_strategy_status(self, strategy_id, strategy_status: StrategyStatus):
+        count = 0
+        while True:
+            try:
+                self.strategyCollection.update_one(
+                    {"strategy_id": strategy_id},
+                    {"$set": {"strategy_status": strategy_status.value}},
+                )
+
+            except Exception:
+                logger.error("Error updating strategy status in Mongo database")
+                time.sleep(SLEEP_SECONDS)
+                count += 1
+
+            else:
+                logger.debug("Strategy status updated in Mongo database successfully")
+                break
+
+            if count == RETRY_COUNT:
+                logger.critical(
+                    "Critical error updating strategy status in Mongo database"
+                )
+                raise StorageUpdateError
+
+    def remove_strategy(self, strategy_id):
+        count = 0
+        while True:
+            try:
+                self.strategyCollection.delete_one({"strategy_id": strategy_id})
+
+            except Exception:
+                logger.error("Error removing strategy from Mongo database")
+                time.sleep(SLEEP_SECONDS)
+                count += 1
+
+            else:
+                logger.debug("Strategy removed from Mongo database successfully")
+                break
+
+            if count == RETRY_COUNT:
+                logger.critical("Critical error removing strategy from Mongo database")
+                raise StorageDeleteError

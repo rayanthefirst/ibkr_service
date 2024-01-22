@@ -5,5 +5,5 @@ from decimal import Decimal
 @dataclass
 class Portfolio:
     cashBalance: Decimal
-    currency: str
+    # currency: str
     numberOfTransactions: int = 0

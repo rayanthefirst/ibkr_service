@@ -28,3 +28,11 @@ class StorageUpdateError(Exception):
     def __init__(self, message="Error updating storage client"):
         self.message = message
         super().__init__(self.message)
+
+
+class StorageDeleteError(Exception):
+    """Exception raised for errors in deleting from a storage client."""
+
+    def __init__(self, message="Error deleting from storage client"):
+        self.message = message
+        super().__init__(self.message)

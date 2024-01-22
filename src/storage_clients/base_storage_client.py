@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from definitions.order_definitions import OrderState, OrderAction
+from definitions.strategy_definitions import StrategyStatus
 from data_classes.contract import Contract
 
 
@@ -46,4 +47,18 @@ class BaseStorageClient(ABC):
         """
         Get all strategies for the strategy handler
         """
+        pass
+
+    @abstractmethod
+    def write_strategy(
+        self, strategy_id, strategy_name, strategy_status: StrategyStatus, **kwargs
+    ):
+        pass
+
+    @abstractmethod
+    def update_strategy_status(self, strategy_id, strategy_status: StrategyStatus):
+        pass
+
+    @abstractmethod
+    def remove_strategy(self, strategy_id):
         pass
