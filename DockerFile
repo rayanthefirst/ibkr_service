@@ -1,5 +1,9 @@
 # Use the official Python image from the DockerHub
-FROM python:3.10-slim
+FROM python:3.8-alpine
+
+# # Install Rust and Cargo
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Set the working directory in docker
 WORKDIR /app
@@ -12,10 +16,10 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=off
 
 # Install system dependencies
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk update \
+    && apk add --no-cache gcc postgresql-dev \
+    && rm -rf /var/cache/apk/*
+
 
 # Install PDM (Python dependency manager) and configure it
 RUN pip install pdm && pdm config python.use_venv false
@@ -25,6 +29,8 @@ COPY pyproject.toml pdm.lock ./
 
 COPY README.md ./
 
+RUN pdm fix
+
 # Install project dependencies
 RUN pdm sync
 
@@ -32,4 +38,4 @@ RUN pdm sync
 COPY src/ ./src/
 
 # Specify the command to run on container start
-CMD ["pdm", "run", "local_server"]
+CMD ["pdm", "run", "server"]

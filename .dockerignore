@@ -20,6 +20,14 @@ __pycache__/
 *.pid
 *.seed
 .DS_Store
+.github/
 
 
 .env
+
+# RunFile
+src/runfile.py
+
+# Tests
+tests/
+

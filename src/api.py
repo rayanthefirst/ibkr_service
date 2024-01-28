@@ -2,7 +2,7 @@ import logging_settings
 
 from strategy_handler.strategy_handler import StrategyHandler
 
-from config import STORAGE_CLIENT
+from config import STORAGE_CLIENT, FASTAPI_HOST, FASTAPI_LOG_LEVEL, FASTAPI_PORT, FASTAPI_ENV
 
 from storage_clients import STORAGE_CLIENTS
 from trading_clients import TRADING_CLIENTS
@@ -27,7 +27,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -145,4 +145,7 @@ async def delete_strategy(strategy_id: str):
 
 
 if __name__ == "__main__":
-    uvicorn.run("api:app", port=80, log_level="info", reload=True)
+    if FASTAPI_ENV == "prod":
+        uvicorn.run("api:app", port=FASTAPI_PORT, log_level=FASTAPI_LOG_LEVEL, reload=False, host=FASTAPI_HOST)
+    elif FASTAPI_ENV == "dev":
+        uvicorn.run("api:app", port=FASTAPI_PORT, log_level=FASTAPI_LOG_LEVEL, reload=True, host=FASTAPI_HOST)

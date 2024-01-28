@@ -28,5 +28,5 @@ dev = [
 
 [tool.pdm.scripts]
 _.env_file = ".env"
-local_server = "python src/api.py"
-local_test = "python src/test.py"
+server = "python src/api.py"
+runfile = "python src/runfile.py"

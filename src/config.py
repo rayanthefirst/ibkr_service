@@ -1,8 +1,20 @@
 import os
 
-# General Parameters
+# General Settings
 SLEEP_SECONDS = int(os.getenv("SLEEP_SECONDS"))
 RETRY_COUNT = int(os.getenv("RETRY_COUNT"))
+
+# Logging Settings
+LOGGING_LEVEL = os.getenv("LOGGING_LEVEL")
+LOGGING_FROMADDR = os.getenv("LOGGING_FROMADDR")
+LOGGING_TOADDR = os.getenv("LOGGING_TOADDR")
+LOGGING_PASSWORD = os.getenv("LOGGING_PASSWORD")
+
+# FastAPI Settings
+FASTAPI_HOST = os.getenv("FASTAPI_HOST")
+FASTAPI_PORT = int(os.getenv("FASTAPI_PORT"))
+FASTAPI_LOG_LEVEL = os.getenv("FASTAPI_LOG_LEVEL")
+FASTAPI_ENV = os.getenv("FASTAPI_ENV")
 
 # Client Settings
 TRADING_CLIENT = os.getenv("TRADING_CLIENT")

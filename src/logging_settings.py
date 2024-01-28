@@ -2,6 +2,7 @@ import logging
 import os
 from datetime import datetime
 from logging import handlers
+from config import LOGGING_LEVEL, LOGGING_FROMADDR, LOGGING_TOADDR, LOGGING_PASSWORD
 
 # Logging basic configurations
 # Logging
@@ -33,10 +34,10 @@ log_stream_handler.setLevel(logging.DEBUG)
 
 email_handler = handlers.SMTPHandler(
     ("smtp.gmail.com", 587),
-    "rayanthefirst.dev@gmail.com",
-    "rayanthefirst.dev@gmail.com",
+    LOGGING_FROMADDR,
+    LOGGING_TOADDR,
     "Trading Bot Error",
-    ("rayanthefirst.dev@gmail.com", "nwhzuulhyxsybweu"),
+    (LOGGING_FROMADDR, LOGGING_PASSWORD),
     secure=(),
 )
 email_handler.setFormatter(log_format)
