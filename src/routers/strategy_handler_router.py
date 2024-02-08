@@ -1,0 +1,110 @@
+from fastapi import APIRouter
+
+from decimal import Decimal
+
+from handlers.strategy_handler import StrategyHandler
+from handlers.storage_client_handler import StorageClientHandler
+
+from storage_clients import STORAGE_CLIENTS
+from trading_clients import TRADING_CLIENTS
+from market_data_clients import MARKET_DATA_CLIENTS
+
+from data_classes.portfolio import Portfolio
+from data_classes.contract import Contract
+
+from definitions.securities_definitions import TradableSecurity, OptionSide
+
+
+strategyRouter = APIRouter()
+
+storage_client_handler = StorageClientHandler()
+default_storage_client = storage_client_handler.get_default_storage_client()
+
+strategy_handler = StrategyHandler(default_storage_client)
+
+
+@strategyRouter.get("/available_strategies")
+async def get_available_strategies():
+    return strategy_handler.get_all_available_strategies()
+
+
+@strategyRouter.get("/signature/{strategy_name}")
+async def get_strategy_signature(strategy_name: str):
+    return strategy_handler.get_strategy_signature(strategy_name)
+
+
+@strategyRouter.get("/get_placed_strategies")
+async def get_placed_strategies():
+    return strategy_handler.get_placed_strategies()
+
+
+@strategyRouter.get("/start_strategy/{strategy_id}")
+async def start_strategy(strategy_id: str):
+    return strategy_handler.start_strategy(strategy_id)
+
+
+@strategyRouter.get("/stop_strategy/{strategy_id}")
+async def stop_strategy(strategy_id: str):
+    return strategy_handler.stop_strategy(strategy_id)
+
+
+@strategyRouter.post("/create_strategy/{strategy_name}")
+async def create_strategy(strategy_name: str, strategy_params: dict):
+
+    trading_client = TRADING_CLIENTS[strategy_params.get("trading_client")]()
+    storage_client = STORAGE_CLIENTS[strategy_params.get("storage_client")]()
+    market_data_client = MARKET_DATA_CLIENTS[strategy_params.get("market_data_client")]()
+
+    initialQuantity = (
+        Decimal(strategy_params.get("initialQuantity"))
+        if strategy_params.get("initialQuantity")
+        else None
+    )
+
+    for security in TradableSecurity:
+        if security.value == strategy_params.get("secType"):
+            secType = security
+            break
+
+    strike = (
+        Decimal(strategy_params.get("strike"))
+        if strategy_params.get("strike")
+        else None
+    )
+
+    for side in OptionSide:
+        if side.value == strategy_params.get("right"):
+            side = side
+
+    initialContract = Contract(
+        strategy_params.get("symbol"),
+        secType,
+        strike,
+        strategy_params.get("expiryDate"),
+        side,
+    )
+
+    cashBalance = (
+        Decimal(strategy_params.get("cashBalance"))
+        if strategy_params.get("cashBalance")
+        else None
+    )
+
+    initialPortfolio = Portfolio(cashBalance=cashBalance)
+
+    strategy_params["trading_client"] = trading_client
+    strategy_params["storage_client"] = storage_client
+    strategy_params["market_data_client"] = market_data_client
+    strategy_params["initialQuantity"] = initialQuantity
+
+    strategy_params["initialContract"] = initialContract
+    strategy_params["initialPortfolio"] = initialPortfolio
+
+    return strategy_handler.create_strategy(strategy_name, **strategy_params)
+
+
+@strategyRouter.delete("/delete_strategy/{strategy_id}")
+async def delete_strategy(strategy_id: str):
+    return strategy_handler.delete_strategy(strategy_id)
+
+

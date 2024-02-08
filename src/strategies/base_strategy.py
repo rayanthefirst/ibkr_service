@@ -39,6 +39,7 @@ class BaseStrategy(ABC):
 
         self.strategy_id = strategy_id or str(uuid4())
         self.is_running = False
+        
         self.lastFilledOrder = None
 
     @abstractmethod

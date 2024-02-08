@@ -15,6 +15,7 @@ class BaseStorageClient(ABC):
     def disconnect(self):
         pass
 
+    # Order Methods
     @abstractmethod
     def write_order(
         self,
@@ -41,7 +42,8 @@ class BaseStorageClient(ABC):
         if not return empty list
         """
         pass
-
+    
+    # Strategy Methods
     @abstractmethod
     def get_all_strategies(self):
         """
@@ -62,3 +64,20 @@ class BaseStorageClient(ABC):
     @abstractmethod
     def remove_strategy(self, strategy_id):
         pass
+
+    # Account Methods - Accounts will represent a single portfolio if an account has multiple portfolios
+    @abstractmethod
+    def get_all_accounts(self):
+        """
+        Get all accounts for the trading handler
+        """
+        pass
+
+    @abstractmethod
+    def write_account(self, account_id, account_name, **kwargs):
+        pass
+
+    @abstractmethod
+    def remove_account(self, account_id):
+        pass
+    

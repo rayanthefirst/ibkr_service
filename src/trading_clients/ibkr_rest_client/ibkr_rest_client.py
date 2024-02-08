@@ -4,6 +4,7 @@ import time
 import warnings
 from decimal import Decimal
 
+import docker
 from requests import Response, get, post, delete
 from urllib3.exceptions import InsecureRequestWarning
 from trading_clients.ibkr_rest_client.ibkr_definitions import (
@@ -11,15 +12,14 @@ from trading_clients.ibkr_rest_client.ibkr_definitions import (
     IBKROrderTIF,
     IBKRTrailingStopType,
 )
-from config import IBKR_ACCOUNT_ID, IBEAM_HOST, SLEEP_SECONDS, RETRY_COUNT
+from config import SLEEP_SECONDS, RETRY_COUNT, IBKR_REST_CONTAINER_IMAGE, NETWORK_NAME, KEY_BYTES
 from definitions.order_definitions import (
-    OrderState,
     OrderAction,
     OrderTIF,
     TrailingStopType,
 )
 from definitions.securities_definitions import TradableSecurity, OptionSide
-
+from definitions.trading_client_definitions import AccountType
 from trading_clients.base_trading_client import BaseTradingClient
 from trading_clients.trading_exceptions import (
     TradingConnectionError,
@@ -34,12 +34,14 @@ warnings.simplefilter("ignore", InsecureRequestWarning)
 
 logger = logging.getLogger(__name__)
 
-
 class IBKRRestClient(BaseTradingClient):
     name = "IBKRRestClient"
 
-    def __init__(self):
-        self.connect()
+    def __init__(self, account_type: AccountType, trading_client_id=None, container=None, **kwargs):
+        super().__init__(account_type, trading_client_id, container)
+        self.dockerClient = docker.DockerClient()
+        self.accountId = kwargs.get("accountId")
+        self.host_url = f"https://{self.container.name}:5000/v1/api"
 
     def check_response(self, resp: Response) -> bool:
         if resp.status_code == 200:
@@ -71,10 +73,16 @@ class IBKRRestClient(BaseTradingClient):
             return resp.json()
 
     # ABSTRACT BASE CLASS METHODS
+    def create_trading_client_container(self):
+        accountUser = kwargs.get("user")
+        accountPassword = kwargs.get("password")
+        return self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword, "IBEAM_KEY": KEY_BYTES}, name="trading_client_" + self.trading_client_id, network=NETWORK_NAME)
+        
     def connect(self):
-        logger.info(f"Connecting to Trading client: {self.name}")
-        self.host_url = f"{IBEAM_HOST}/v1/api"
-        self.accountId = IBKR_ACCOUNT_ID
+        super().connect()
+        self.container.start()
+
+        time.sleep(10)
 
         count = 0
         while True:
@@ -95,7 +103,8 @@ class IBKRRestClient(BaseTradingClient):
                 raise TradingConnectionError
 
     def disconnect(self):
-        pass
+        super().disconnect()
+        self.container.stop()
 
     def get_portfolio_info(self):
         # Must be called prior to the following requests

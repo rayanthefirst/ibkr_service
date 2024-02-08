@@ -14,7 +14,7 @@ class FMPClient(BaseMarketDataClient):
 
     name = "FMPClient"
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.base_url = "https://financialmodelingprep.com/api/v3/"
 
     def connect(self):

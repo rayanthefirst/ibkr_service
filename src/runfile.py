@@ -115,4 +115,52 @@
 # dump = pickle.dumps(strategy)
 # print(dump)
 
-print("hello")
+# from handlers.market_data_handler import MarketDataHandler
+
+# market_data_handler = MarketDataHandler()
+
+# print(MarketDataHandler.array)
+
+# MarketDataHandler.array.append(1)
+
+# print(MarketDataHandler.array)
+
+# print(market_data_handler.array)
+
+# market_data_handler.array.append(2)
+
+# print(MarketDataHandler.array)
+
+
+import docker
+
+client = docker.DockerClient()
+# cont = client.containers.list(all=True, filters={"name": "cool_*"})
+# print(cont)
+# for c in cont: 
+#     print(c.name)
+client.containers.create(image="voyz/ibeam", detach=True, environment={"IBEAM_ACCOUNT": "aibapi002", "IBEAM_PASSWORD": "layla1966"}, name="testCreate")
+
+# print(client.containers.list(all=True))
+
+
+# from trading_clients.ibkr_rest_client.ibkr_rest_client import IBKRRestClient
+
+# ibkr_client = IBKRRestClient()
+# print(ibkr_client.dockerClient.images.list()[0])
+
+
+
+# from cryptography.fernet import Fernet
+# key = Fernet.generate_key()
+# print(key)
+# print(key.decode('utf-8'))
+# print(key.decode('utf-8').encode('utf-8'))
+
+# f = Fernet(key)
+# password = f.encrypt(b"your_ibkr_password123")
+# print(f'IBEAM_PASSWORD={password}, IBEAM_KEY={key}')
+
+# print(type((f.decrypt(password)).decode('utf-8')))
+
+

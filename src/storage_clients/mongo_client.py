@@ -20,6 +20,7 @@ from config import (
     MONGO_DATABASE,
     MONGO_DATABASE_COLLECTION_ORDER_DATA,
     MONGO_DATABASE_COLLECTION_STRATEGY_DATA,
+    MONGO_DATABASE_COLLECTION_ACCOUNT_DATA,
     SLEEP_SECONDS,
     RETRY_COUNT,
 )
@@ -30,7 +31,7 @@ logger = logging.getLogger(__name__)
 class MongoClient(BaseStorageClient):
     name = "MongoClient"
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.connect()
 
     def connect(self):
@@ -45,9 +46,8 @@ class MongoClient(BaseStorageClient):
 
                 self.db = self.client[MONGO_DATABASE]
                 self.orderCollection = self.db[MONGO_DATABASE_COLLECTION_ORDER_DATA]
-                self.strategyCollection = self.db[
-                    MONGO_DATABASE_COLLECTION_STRATEGY_DATA
-                ]
+                self.strategyCollection = self.db[MONGO_DATABASE_COLLECTION_STRATEGY_DATA]
+                self.accountCollection = self.db[MONGO_DATABASE_COLLECTION_ACCOUNT_DATA]
 
             except Exception:
                 logger.error(f"Error connecting to storage client: {self.name}")
@@ -227,4 +227,33 @@ class MongoClient(BaseStorageClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error removing strategy from Mongo database")
+                raise StorageDeleteError
+
+    def get_all_accounts(self):
+        return list(self.read(self.accountCollection))
+
+    def write_account(self, account_id, account_name, **kwargs):
+        self.write(self.accountCollection, 
+                   account_id=account_id,
+                   account_name=account_name,
+                   **kwargs
+                   )
+
+    def remove_account(self, account_id):
+        count = 0
+        while True:
+            try:
+                self.accountCollection.delete_one({"account_id": account_id})
+
+            except Exception:
+                logger.error("Error removing account from Mongo database")
+                time.sleep(SLEEP_SECONDS)
+                count += 1
+
+            else:
+                logger.debug("Account removed from Mongo database successfully")
+                break
+
+            if count == RETRY_COUNT:
+                logger.critical("Critical error removing account from Mongo database")
                 raise StorageDeleteError

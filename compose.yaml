@@ -1,0 +1,25 @@
+services:
+  trading_system_backend:
+    build: .
+    ports:
+      - 80:${FASTAPI_PORT}
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - ${NETWORK_NAME}
+
+    # depends_on:
+    #   - ibkr_account
+
+networks:
+  ${NETWORK_NAME}:
+    driver: bridge
+  # ibkr_account:
+  #   image: ibeam_mod
+    # ports:
+    #   - 5000:5000
+    # environment:
+    #   IBEAM_ACCOUNT: aibapi002
+    #   IBEAM_PASSWORD: layla1966

@@ -4,27 +4,25 @@ from typing import List
 
 from definitions.strategy_definitions import StrategyStatus
 
-from strategies import strategies
-from trading_clients import TRADING_CLIENTS
-from market_data_clients import MARKET_DATA_CLIENTS
-from storage_clients import STORAGE_CLIENTS
+from strategies import STRATEGIES
+from handlers.market_data_handler import MarketDataHandler
+from handlers.trading_client_handler import TradingClientHandler
+from handlers.storage_client_handler import StorageClientHandler
 
 from config import TRADING_CLIENT, MARKET_DATA_CLIENT, STORAGE_CLIENT
 
 
 from strategies.base_strategy import BaseStrategy
-from trading_clients.base_trading_client import BaseTradingClient
-from market_data_clients.base_market_data_client import BaseMarketDataClient
 from storage_clients.base_storage_client import BaseStorageClient
 
 logger = logging.getLogger(__name__)
 
+storage_client = StorageClientHandler()
+trading_client = TradingClientHandler(storage_client.get_default_storage_client())
+market_data_client = MarketDataHandler()
 
 class StrategyHandler:
-    def __init__(
-        self,
-        storage_client: BaseStorageClient,
-    ):
+    def __init__(self, storage_client: BaseStorageClient):
         self.storage_client = storage_client
         self.strategies: List[BaseStrategy] = []
         self.load_strategies()
@@ -34,14 +32,14 @@ class StrategyHandler:
         logger.info("Loading strategies from storage client")
 
         for strategy in self.storage_client.get_all_strategies():
-            strategy["trading_client"] = TRADING_CLIENTS[TRADING_CLIENT]()
-            strategy["market_data_client"] = MARKET_DATA_CLIENTS[MARKET_DATA_CLIENT]()
-            strategy["storage_client"] = STORAGE_CLIENTS[STORAGE_CLIENT]()
-            strategy: BaseStrategy = strategies[strategy["strategy_name"]](**strategy)
+            strategy["trading_client"] = trading_client.get_trading_client(strategy.get("trading_client_name", TRADING_CLIENT))
+            strategy["market_data_client"] = market_data_client.get_market_data_client(strategy.get("market_data_client_name", MARKET_DATA_CLIENT))
+            strategy["storage_client"] = storage_client.get_storage_client(strategy.get("storage_client_name", STORAGE_CLIENT))
+            strategy: BaseStrategy = STRATEGIES[strategy["strategy_name"]](**strategy)
             self.strategies.append(strategy)
 
     def get_all_available_strategies(self):
-        return list(strategies.keys())
+        return list(STRATEGIES.keys())
 
     def get_placed_strategies(self):
         return [
@@ -56,7 +54,7 @@ class StrategyHandler:
         ]
 
     def get_strategy_signature(self, strategy_name: str):
-        signature = inspect.signature(strategies[strategy_name])
+        signature = inspect.signature(STRATEGIES[strategy_name])
         param_names = [param.name for param in signature.parameters.values()]
         return param_names
 
@@ -85,7 +83,7 @@ class StrategyHandler:
         return f"Strategy {strategy_id} stopped"
 
     def create_strategy(self, strategy_name, **kwargs):
-        strategy: BaseStrategy = strategies[strategy_name](**kwargs)
+        strategy: BaseStrategy = STRATEGIES[strategy_name](**kwargs)
         self.storage_client.write_strategy(
             strategy.strategy_id, strategy_name, StrategyStatus.INACTIVE
         )
@@ -103,7 +101,5 @@ class StrategyHandler:
         for strategy in self.strategies:
             if strategy.strategy_id == strategy_id:
                 return strategy
+            
 
-
-# def get_running_strategies(self):
-#     return [strategy for strategy in self.strategies if strategy.is_running]

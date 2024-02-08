@@ -11,7 +11,7 @@ from strategies.trailing_strategies.long_short_neutral_buy_sell_trail import (
     LongShortNeutralBuySellTrail,
 )
 
-strategies = {
+STRATEGIES = {
     TestStrategy.name: TestStrategy,
     LongBuySellTrail.name: LongBuySellTrail,
     LongShortBuySellTrail.name: LongShortBuySellTrail,

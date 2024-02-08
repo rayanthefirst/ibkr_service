@@ -1,12 +1,18 @@
 from abc import ABC, abstractmethod
+import logging
 from decimal import Decimal
 from definitions.order_definitions import (
-    OrderState,
     OrderAction,
     OrderTIF,
     TrailingStopType,
 )
 from definitions.securities_definitions import TradableSecurity, OptionSide
+from definitions.trading_client_definitions import AccountType
+
+
+from uuid import uuid4
+
+logger = logging.getLogger(__name__)
 
 
 class BaseTradingClient(ABC):
@@ -14,13 +20,24 @@ class BaseTradingClient(ABC):
 
     name = "BaseTradingClient"
 
+    def __init__(self, account_type: AccountType, trading_client_id=None, container=None):
+        self.account_type = account_type
+        self.trading_client_id = trading_client_id or str(uuid4())
+        self.container = container or self.create_trading_client_container()
+        self.is_running = False
+
+    @abstractmethod
+    def create_trading_client_container(self):
+        return None
+    
     @abstractmethod
     def connect(self):
-        ...
+        logger.info(f"Connecting to Trading client: {self.name}")
+        self.is_running = True
 
     @abstractmethod
     def disconnect(self):
-        ...
+        self.is_running = False
 
     @abstractmethod
     def get_portfolio_info(self):
