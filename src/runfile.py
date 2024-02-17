@@ -132,14 +132,14 @@
 # print(MarketDataHandler.array)
 
 
-import docker
+# import docker
 
-client = docker.DockerClient()
+# client = docker.DockerClient()
 # cont = client.containers.list(all=True, filters={"name": "cool_*"})
 # print(cont)
 # for c in cont: 
 #     print(c.name)
-client.containers.create(image="voyz/ibeam", detach=True, environment={"IBEAM_ACCOUNT": "aibapi002", "IBEAM_PASSWORD": "layla1966"}, name="testCreate")
+# client.containers.create(image="voyz/ibeam", detach=True, environment={"IBEAM_ACCOUNT": "aibapi002", "IBEAM_PASSWORD": "layla1966"}, name="testCreate")
 
 # print(client.containers.list(all=True))
 
@@ -164,3 +164,8 @@ client.containers.create(image="voyz/ibeam", detach=True, environment={"IBEAM_AC
 # print(type((f.decrypt(password)).decode('utf-8')))
 
 
+from utils.cipher import decrypt_str, encrypt_str
+
+print(decrypt_str("333<5>324<5>324<5>303<5>312"))
+
+print(encrypt_str("hello"))

@@ -74,7 +74,7 @@ class BaseStorageClient(ABC):
         pass
 
     @abstractmethod
-    def write_account(self, account_id, account_name, **kwargs):
+    def write_account(self, trading_client_name, account_type, trading_client_id, account_status, **kwargs):
         pass
 
     @abstractmethod

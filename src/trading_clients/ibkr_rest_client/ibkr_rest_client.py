@@ -4,7 +4,9 @@ import time
 import warnings
 from decimal import Decimal
 
-import docker
+from cryptography.fernet import Fernet
+
+
 from requests import Response, get, post, delete
 from urllib3.exceptions import InsecureRequestWarning
 from trading_clients.ibkr_rest_client.ibkr_definitions import (
@@ -37,11 +39,11 @@ logger = logging.getLogger(__name__)
 class IBKRRestClient(BaseTradingClient):
     name = "IBKRRestClient"
 
-    def __init__(self, account_type: AccountType, trading_client_id=None, container=None, **kwargs):
-        super().__init__(account_type, trading_client_id, container)
-        self.dockerClient = docker.DockerClient()
-        self.accountId = kwargs.get("accountId")
-        self.host_url = f"https://{self.container.name}:5000/v1/api"
+    def __init__(self, user, password, account_type: AccountType, ibkrAccountId, trading_client_id=None, container=None, **kwargs):
+        super().__init__(account_type, trading_client_id, container, user=user, password=password, **kwargs)
+        self.encrpytionClient = Fernet(KEY_BYTES)
+        self.accountId = ibkrAccountId
+        self.host_url = f"https://trading_client_{self.trading_client_id}:5000/v1/api"
 
     def check_response(self, resp: Response) -> bool:
         if resp.status_code == 200:
@@ -73,10 +75,11 @@ class IBKRRestClient(BaseTradingClient):
             return resp.json()
 
     # ABSTRACT BASE CLASS METHODS
-    def create_trading_client_container(self):
+    def create_trading_client_container(self, **kwargs):
         accountUser = kwargs.get("user")
         accountPassword = kwargs.get("password")
-        return self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword, "IBEAM_KEY": KEY_BYTES}, name="trading_client_" + self.trading_client_id, network=NETWORK_NAME)
+        return self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword}, name="trading_client_" + self.trading_client_id, network=NETWORK_NAME)
+        # return self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword, "IBEAM_KEY": KEY_BYTES}, name="trading_client_" + self.trading_client_id, network=NETWORK_NAME)
         
     def connect(self):
         super().connect()

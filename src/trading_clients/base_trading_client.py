@@ -9,6 +9,8 @@ from definitions.order_definitions import (
 from definitions.securities_definitions import TradableSecurity, OptionSide
 from definitions.trading_client_definitions import AccountType
 
+import docker
+
 
 from uuid import uuid4
 
@@ -20,10 +22,11 @@ class BaseTradingClient(ABC):
 
     name = "BaseTradingClient"
 
-    def __init__(self, account_type: AccountType, trading_client_id=None, container=None):
+    def __init__(self, account_type: AccountType, trading_client_id=None, container=None, **kwargs):
         self.account_type = account_type
         self.trading_client_id = trading_client_id or str(uuid4())
-        self.container = container or self.create_trading_client_container()
+        self.dockerClient = docker.DockerClient()
+        self.container = container or self.create_trading_client_container(**kwargs)
         self.is_running = False
 
     @abstractmethod
