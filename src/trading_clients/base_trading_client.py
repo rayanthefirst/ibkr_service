@@ -22,7 +22,9 @@ class BaseTradingClient(ABC):
 
     name = "BaseTradingClient"
 
-    def __init__(self, account_type: AccountType, trading_client_id=None, container=None, **kwargs):
+    def __init__(self, alias, account_type: AccountType, trading_client_id=None, container=None, **kwargs):
+        self.alias = alias
+        self.user = kwargs.get("user", "")
         self.account_type = account_type
         self.trading_client_id = trading_client_id or str(uuid4())
         self.dockerClient = docker.DockerClient()
@@ -32,6 +34,10 @@ class BaseTradingClient(ABC):
     @abstractmethod
     def create_trading_client_container(self):
         return None
+    
+    @abstractmethod
+    def get_status(self):
+        ...
     
     @abstractmethod
     def connect(self):

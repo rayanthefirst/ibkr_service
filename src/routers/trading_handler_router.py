@@ -1,18 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from config import trading_client_handler
 
-from handlers.trading_client_handler import TradingClientHandler
-from handlers.storage_client_handler import StorageClientHandler
 
 from definitions.trading_client_definitions import AccountType
 
 tradingRouter = APIRouter()
-
-storage_client_handler = StorageClientHandler()
-default_storage_client = storage_client_handler.get_default_storage_client()
-
-
-trading_client_handler = TradingClientHandler(default_storage_client)
-
 
 @tradingRouter.get("/get_trading_client_types")
 async def get_trading_client_types():
@@ -22,15 +14,15 @@ async def get_trading_client_types():
 async def get_account_type():
     return [accountType.value for accountType in AccountType]
 
-@tradingRouter.get("/get_trading_client_signature")
+@tradingRouter.get("/get_client_signature")
 async def get_trading_client_signature(trading_client_name: str):
     return trading_client_handler.get_trading_client_signature(trading_client_name)
 
-@tradingRouter.get("/get_placed_trading_clients")
+@tradingRouter.get("/get_clients")
 async def get_placed_trading_clients():
     return trading_client_handler.get_trading_clients()
 
-@tradingRouter.post("/create_trading_client")
+@tradingRouter.post("/create")
 async def create_trading_client(kwargs: dict):
 
     for accountType in AccountType:
@@ -38,4 +30,21 @@ async def create_trading_client(kwargs: dict):
             kwargs["account_type"] = accountType
 
     trading_client_handler.create_trading_client(**kwargs)
+    return "Created trading client successfully"
 
+@tradingRouter.get("/start")
+async def start_trading_client(trading_client_id: str):
+    trading_client_handler.start_trading_client(trading_client_id)
+    return "Successfully started trading client"
+
+@tradingRouter.get("/stop")
+async def stop_trading_client(trading_client_id: str):
+    trading_client_handler.stop_trading_client(trading_client_id)
+    return "Successfully stopped trading client"
+
+
+@tradingRouter.delete("/delete")
+async def delete_trading_client(trading_client_id: str):
+    if not trading_client_id: raise HTTPException(400, detail="Trading Client ID Not Found")
+    trading_client_handler.delete_trading_client(trading_client_id)
+    return "Successfully deleted trading client"

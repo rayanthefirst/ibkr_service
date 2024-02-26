@@ -232,20 +232,19 @@ class MongoClient(BaseStorageClient):
     def get_all_accounts(self):
         return list(self.read(self.accountCollection))
 
-    def write_account(self, trading_client_name, account_type, trading_client_id, account_status, **kwargs):
+    def write_account(self, trading_client_name, account_type, trading_client_id, **kwargs):
         self.write(self.accountCollection, 
                    trading_client_name=trading_client_name,
                    account_type=account_type,
                    trading_client_id=trading_client_id,
-                   account_status=account_status,
                    **kwargs
                    )
 
-    def remove_account(self, account_id):
+    def remove_account(self, trading_client_id):
         count = 0
         while True:
             try:
-                self.accountCollection.delete_one({"account_id": account_id})
+                self.accountCollection.delete_one({"trading_client_id": trading_client_id})
 
             except Exception:
                 logger.error("Error removing account from Mongo database")

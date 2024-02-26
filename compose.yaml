@@ -1,3 +1,10 @@
+networks:
+  network:
+    driver: bridge
+    
+
+
+
 services:
   trading_system_backend:
     build: .
@@ -8,7 +15,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - ${NETWORK_NAME}
+      - network
 
   # nginx:
   #   image: nginx:latest
@@ -26,6 +33,3 @@ services:
 
 
 
-networks:
-  ${NETWORK_NAME}:
-    driver: bridge

@@ -2,8 +2,7 @@ from fastapi import APIRouter
 
 from decimal import Decimal
 
-from handlers.strategy_handler import StrategyHandler
-from handlers.storage_client_handler import StorageClientHandler
+from config import strategy_handler
 
 from storage_clients import STORAGE_CLIENTS
 from trading_clients import TRADING_CLIENTS
@@ -17,10 +16,7 @@ from definitions.securities_definitions import TradableSecurity, OptionSide
 
 strategyRouter = APIRouter()
 
-storage_client_handler = StorageClientHandler()
-default_storage_client = storage_client_handler.get_default_storage_client()
 
-strategy_handler = StrategyHandler(default_storage_client)
 
 
 @strategyRouter.get("/available_strategies")
@@ -48,7 +44,7 @@ async def stop_strategy(strategy_id: str):
     return strategy_handler.stop_strategy(strategy_id)
 
 
-@strategyRouter.post("/create_strategy/{strategy_name}")
+@strategyRouter.post("/create")
 async def create_strategy(strategy_name: str, strategy_params: dict):
 
     trading_client = TRADING_CLIENTS[strategy_params.get("trading_client")]()

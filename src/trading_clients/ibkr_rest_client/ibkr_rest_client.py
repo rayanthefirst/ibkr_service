@@ -4,7 +4,7 @@ import time
 import warnings
 from decimal import Decimal
 
-from cryptography.fernet import Fernet
+# from cryptography.fernet import Fernet
 
 
 from requests import Response, get, post, delete
@@ -14,14 +14,14 @@ from trading_clients.ibkr_rest_client.ibkr_definitions import (
     IBKROrderTIF,
     IBKRTrailingStopType,
 )
-from config import SLEEP_SECONDS, RETRY_COUNT, IBKR_REST_CONTAINER_IMAGE, NETWORK_NAME, KEY_BYTES
+from config import SLEEP_SECONDS, RETRY_COUNT, IBKR_REST_CONTAINER_IMAGE, NETWORK_NAME, KEY_BYTES, CONTAINER_START_DELAY
 from definitions.order_definitions import (
     OrderAction,
     OrderTIF,
     TrailingStopType,
 )
 from definitions.securities_definitions import TradableSecurity, OptionSide
-from definitions.trading_client_definitions import AccountType
+from definitions.trading_client_definitions import AccountType, AccountStatus
 from trading_clients.base_trading_client import BaseTradingClient
 from trading_clients.trading_exceptions import (
     TradingConnectionError,
@@ -39,9 +39,9 @@ logger = logging.getLogger(__name__)
 class IBKRRestClient(BaseTradingClient):
     name = "IBKRRestClient"
 
-    def __init__(self, user, password, account_type: AccountType, ibkrAccountId, trading_client_id=None, container=None, **kwargs):
-        super().__init__(account_type, trading_client_id, container, user=user, password=password, **kwargs)
-        self.encrpytionClient = Fernet(KEY_BYTES)
+    def __init__(self, alias, user, password, account_type: AccountType, ibkrAccountId=None, trading_client_id=None, container=None, **kwargs):
+        super().__init__(alias, account_type, trading_client_id, container, user=user, password=password, **kwargs)
+        # self.encrpytionClient = Fernet(KEY_BYTES)
         self.accountId = ibkrAccountId
         self.host_url = f"https://trading_client_{self.trading_client_id}:5000/v1/api"
 
@@ -78,41 +78,87 @@ class IBKRRestClient(BaseTradingClient):
     def create_trading_client_container(self, **kwargs):
         accountUser = kwargs.get("user")
         accountPassword = kwargs.get("password")
+        # return self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword}, name="trading_client_" + self.trading_client_id)
         return self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword}, name="trading_client_" + self.trading_client_id, network=NETWORK_NAME)
         # return self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword, "IBEAM_KEY": KEY_BYTES}, name="trading_client_" + self.trading_client_id, network=NETWORK_NAME)
         
     def connect(self):
         super().connect()
         self.container.start()
-
-        time.sleep(10)
-
-        count = 0
-        while True:
-            try:
-                self.ibkr_get_request("/portfolio/accounts")
-
-            except Exception:
-                logger.error("Error connecting to IBKR REST API")
+        time.sleep(CONTAINER_START_DELAY)
+        try:
+            while self.is_running:
+                account_status = self.get_status()
+                if account_status == AccountStatus.ACTIVE:
+                    break
                 time.sleep(SLEEP_SECONDS)
-                count += 1
+                
+        except TradingConnectionError:
+            self.disconnect()
+
+        else:
+            if account_status == AccountStatus.ACTIVE:
+                self.accountId = self.get_trading_client_account_id()
 
             else:
-                logger.info("Connected to IBKR REST API successfully")
-                break
-
-            if count == RETRY_COUNT:
                 logger.critical("Critical error connecting to IBKR REST API")
                 raise TradingConnectionError
+
 
     def disconnect(self):
         super().disconnect()
         self.container.stop()
+        return self.get_status()
 
+
+    def get_status(self):
+        count = 0
+        while self.is_running:
+            try:
+                authSessionResponse = post(self.host_url + "/iserver/auth/status", json={}, verify=False)
+
+            except Exception as e:
+                logger.error(f"Error connecting to IBKR REST API or Server: {e}")
+                print(self.host_url)
+                time.sleep(SLEEP_SECONDS)
+                count += 1
+
+            else:
+                if authSessionResponse.status_code != 200:
+                    time.sleep(SLEEP_SECONDS)
+                    continue
+                
+                if authSessionResponse.json()["authenticated"]:
+                    logger.info("Checking IBKR REST API connection")
+                    return AccountStatus.ACTIVE
+
+            if count == RETRY_COUNT:
+                logger.critical("Critical error connecting to IBKR REST API or Server")
+                raise TradingConnectionError
+        
+        return AccountStatus.INACTIVE
+    
+
+    def get_trading_client_account_id(self):
+        count = 0
+        while True:
+            try:
+                accountInfo = self.ibkr_get_request("/portfolio/accounts")
+            
+            except Exception:
+                logger.error("Error getting account ID from IBKR REST API")
+                time.sleep(SLEEP_SECONDS)
+                count += 1
+
+            else:
+                return accountInfo[0]["accountId"]
+            
+            if count == RETRY_COUNT:
+                logger.critical("Critical error getting account ID from IBKR REST API")
+                raise TradingGetPortfolioInfoError
+                    
+        
     def get_portfolio_info(self):
-        # Must be called prior to the following requests
-        self.ibkr_get_request("/portfolio/accounts")
-
         count = 0
         while True:
             try:

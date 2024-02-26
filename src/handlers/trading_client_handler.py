@@ -34,12 +34,10 @@ class TradingClientHandler:
                     account["account_type"] = accountType
 
         
-            account["user"] = decrypt_str(account["user"] )
+            account["user"] = decrypt_str(account["user"])
             account["password"] = decrypt_str(account["password"])
-            account["ibkrAccountId"] = decrypt_str(account["ibkrAccountId"])
+            # account["ibkrAccountId"] = decrypt_str(account.get("ibkrAccountId", "Not Provided"))
             trading_client = TRADING_CLIENTS[account["trading_client_name"]](**account)
-            if account["account_status"] == AccountStatus.ACTIVE.value:
-                trading_client.connect()
 
             self.trading_clients.append(trading_client)        
             
@@ -55,11 +53,12 @@ class TradingClientHandler:
     
     def get_trading_clients(self):
         return [
-            {   "trading_client_name": trading_client.name,
+            {   "trading_client_account_user": encrypt_str(trading_client.user),
+                "trading_client_type": trading_client.name,
                 "trading_client_id": trading_client.trading_client_id,
                 "trading_client_account_type": trading_client.account_type.value,
-                "ibkrAccountId": encrypt_str(trading_client.accountId),
-                "trading_client_status": AccountStatus.ACTIVE.value if trading_client.is_running else AccountStatus.INACTIVE.value
+                # "ibkrAccountId": trading_client.accountId if trading_client.accountId == None else encrypt_str(trading_client.accountId),
+                "status": self.get_trading_client_status(trading_client.trading_client_id)
             } for trading_client in self.trading_clients
         ]
 
@@ -75,31 +74,32 @@ class TradingClientHandler:
     def create_trading_client(self, trading_client_name: str, **kwargs):
         encryptedUser = kwargs.get("user")
         encryptedPassword = kwargs.get("password")
-        encryptedAccount = kwargs.get("ibkrAccountId")
 
         kwargs["user"] = decrypt_str(kwargs.get("user"))
         kwargs["password"] = decrypt_str(kwargs.get("password"))
-        kwargs["ibkrAccountId"] = decrypt_str(kwargs.get("ibkrAccountId"))
-
 
         trading_client = TRADING_CLIENTS[trading_client_name](**kwargs)
         self.trading_clients.append(trading_client)
 
         kwargs["user"] = encryptedUser
         kwargs["password"] = encryptedPassword
-        kwargs["ibkrAccountId"] = encryptedAccount
 
         self.storage_client.write_account(trading_client_name,
                                         trading_client.account_type.value,
                                           trading_client.trading_client_id,
-                                          account_status=AccountStatus.ACTIVE.value if trading_client.is_running else AccountStatus.INACTIVE.value,
                                           **{key:value for key, value in kwargs.items() if type(key) == str and type(value) == str}),
     
-        
-
     
-    def delete_trading_client(self, trading_client_name: str):
-        ...
+    def delete_trading_client(self, trading_client_id: str):
+        trading_client = self.get_trading_client(trading_client_id)
+        trading_client.disconnect()
+        trading_client.container.remove()
+        self.trading_clients.remove(trading_client)
+        self.storage_client.remove_account(trading_client.trading_client_id)
+
+    def get_trading_client_status(self, trading_client_id: str):
+        trading_client = self.get_trading_client(trading_client_id)
+        return trading_client.get_status()
 
     def get_trading_client(self, trading_client_id: str):
         for trading_client in self.trading_clients:

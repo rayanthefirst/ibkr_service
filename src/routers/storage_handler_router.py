@@ -1,11 +1,10 @@
 from fastapi import APIRouter
+from config import storage_client_handler
 
 storageRouter = APIRouter()
 
-from handlers.storage_client_handler import StorageClientHandler
 
 
-storage_client_handler = StorageClientHandler()
 
 @storageRouter.get("/get_storage_client_types")
 async def get_storage_client_types():

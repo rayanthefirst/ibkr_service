@@ -74,10 +74,10 @@ class BaseStorageClient(ABC):
         pass
 
     @abstractmethod
-    def write_account(self, trading_client_name, account_type, trading_client_id, account_status, **kwargs):
+    def write_account(self, trading_client_name, account_type, trading_client_id, **kwargs):
         pass
 
     @abstractmethod
-    def remove_account(self, account_id):
+    def remove_account(self, trading_client_id):
         pass
     
