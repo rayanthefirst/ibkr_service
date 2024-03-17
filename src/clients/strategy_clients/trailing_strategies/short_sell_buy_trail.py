@@ -4,7 +4,7 @@ from definitions.order_definitions import (
     OrderTIF,
 )
 
-from strategies.trailing_strategies.base_trail import BaseTrail
+from clients.strategy_clients.trailing_strategies.base_trail import BaseTrail
 import logging
 
 logger = logging.getLogger(__name__)

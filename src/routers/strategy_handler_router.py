@@ -4,9 +4,9 @@ from decimal import Decimal
 
 from config import strategy_handler
 
-from storage_clients import STORAGE_CLIENTS
-from trading_clients import TRADING_CLIENTS
-from market_data_clients import MARKET_DATA_CLIENTS
+from clients.storage_clients import STORAGE_CLIENTS
+from clients.account_clients import TRADING_CLIENTS
+from clients.market_data_clients import MARKET_DATA_CLIENTS
 
 from data_classes.portfolio import Portfolio
 from data_classes.contract import Contract
@@ -29,7 +29,7 @@ async def get_strategy_signature(strategy_name: str):
     return strategy_handler.get_strategy_signature(strategy_name)
 
 
-@strategyRouter.get("/get_placed_strategies")
+@strategyRouter.get("/get_clients")
 async def get_placed_strategies():
     return strategy_handler.get_placed_strategies()
 

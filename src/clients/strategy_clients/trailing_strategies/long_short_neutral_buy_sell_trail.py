@@ -1,4 +1,4 @@
-from strategies.trailing_strategies.base_trail import BaseTrail
+from clients.strategy_clients.trailing_strategies.base_trail import BaseTrail
 from definitions.order_definitions import (
     OrderState,
     OrderAction,

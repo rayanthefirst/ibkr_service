@@ -9,7 +9,7 @@ from decimal import Decimal
 
 from requests import Response, get, post, delete
 from urllib3.exceptions import InsecureRequestWarning
-from trading_clients.ibkr_rest_client.ibkr_definitions import (
+from clients.account_clients.ibkr_rest_client.ibkr_definitions import (
     IBKRTradableSecurity,
     IBKROrderTIF,
     IBKRTrailingStopType,
@@ -21,15 +21,15 @@ from definitions.order_definitions import (
     TrailingStopType,
 )
 from definitions.securities_definitions import TradableSecurity, OptionSide
-from definitions.trading_client_definitions import AccountType, AccountStatus
-from trading_clients.base_trading_client import BaseTradingClient
-from trading_clients.trading_exceptions import (
-    TradingConnectionError,
-    TradingGetPortfolioInfoError,
-    TradingPlaceOrderError,
-    TradingGetInstrumentError,
-    TradingGetOrderError,
-    TradingCancelOrderError,
+from definitions.account_definitions import AccountType, AccountStatus
+from clients.account_clients.base_account_client import BaseTradingClient
+from clients.account_clients.account_exceptions import (
+    AccountConnectionError,
+    AccountGetPortfolioInfoError,
+    AccountPlaceOrderError,
+    AccountGetInstrumentError,
+    AccountGetOrderError,
+    AccountCancelOrderError,
 )
 
 warnings.simplefilter("ignore", InsecureRequestWarning)
@@ -93,7 +93,7 @@ class IBKRRestClient(BaseTradingClient):
                     break
                 time.sleep(SLEEP_SECONDS)
                 
-        except TradingConnectionError:
+        except AccountConnectionError:
             self.disconnect()
 
         else:
@@ -102,7 +102,7 @@ class IBKRRestClient(BaseTradingClient):
 
             else:
                 logger.critical("Critical error connecting to IBKR REST API")
-                raise TradingConnectionError
+                raise AccountConnectionError
 
 
     def disconnect(self):
@@ -134,7 +134,7 @@ class IBKRRestClient(BaseTradingClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error connecting to IBKR REST API or Server")
-                raise TradingConnectionError
+                raise AccountConnectionError
         
         return AccountStatus.INACTIVE
     
@@ -155,7 +155,7 @@ class IBKRRestClient(BaseTradingClient):
             
             if count == RETRY_COUNT:
                 logger.critical("Critical error getting account ID from IBKR REST API")
-                raise TradingGetPortfolioInfoError
+                raise AccountGetPortfolioInfoError
                     
         
     def get_portfolio_info(self):
@@ -218,7 +218,7 @@ class IBKRRestClient(BaseTradingClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error getting portfolio info")
-                raise TradingGetPortfolioInfoError
+                raise AccountGetPortfolioInfoError
 
     def place_market_order(
         self,
@@ -267,7 +267,7 @@ class IBKRRestClient(BaseTradingClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error placing market order")
-                raise TradingPlaceOrderError
+                raise AccountPlaceOrderError
 
     def place_trail_order(
         self,
@@ -321,7 +321,7 @@ class IBKRRestClient(BaseTradingClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error placing trail order")
-                raise TradingPlaceOrderError
+                raise AccountPlaceOrderError
 
     def confirm_order(self, replyId: str):
         logger.info(f"Confirming order")
@@ -344,7 +344,7 @@ class IBKRRestClient(BaseTradingClient):
 
         if count == RETRY_COUNT:
             logger.critical("Critical error confirming order")
-            raise TradingPlaceOrderError
+            raise AccountPlaceOrderError
 
     def get_instrument_conid(
         self,
@@ -373,7 +373,7 @@ class IBKRRestClient(BaseTradingClient):
                     availableOptionDates = symbolInfo["opt"].split(";")
 
                     if numericalFormattedDate not in availableOptionDates:
-                        raise TradingGetInstrumentError(
+                        raise AccountGetInstrumentError(
                             "No available option contract for expiry date"
                         )
 
@@ -391,7 +391,7 @@ class IBKRRestClient(BaseTradingClient):
                     )
 
                     if strike not in availableStrikes[right]:
-                        raise TradingGetInstrumentError(
+                        raise AccountGetInstrumentError(
                             "No available option contract for strike price"
                         )
 
@@ -417,7 +417,7 @@ class IBKRRestClient(BaseTradingClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error getting instrument conid")
-                raise TradingGetInstrumentError
+                raise AccountGetInstrumentError
 
     def get_live_orders(self):
         count = 0
@@ -434,7 +434,7 @@ class IBKRRestClient(BaseTradingClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error getting live orders")
-                raise TradingGetOrderError
+                raise AccountGetOrderError
 
     def get_order_status(self, orderId: int):
         count = 0
@@ -462,7 +462,7 @@ class IBKRRestClient(BaseTradingClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error getting order status")
-                raise TradingGetOrderError
+                raise AccountGetOrderError
 
     def cancel_order(self, orderId: int):
         count = 0
@@ -480,4 +480,4 @@ class IBKRRestClient(BaseTradingClient):
 
             if count == RETRY_COUNT:
                 logger.critical("Critical error cancelling order")
-                raise TradingCancelOrderError
+                raise AccountCancelOrderError

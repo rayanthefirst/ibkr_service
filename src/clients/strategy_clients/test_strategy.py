@@ -1,4 +1,4 @@
-from strategies.base_strategy import BaseStrategy
+from clients.strategy_clients.base_strategy import BaseStrategy
 import logging
 
 logger = logging.getLogger(__name__)

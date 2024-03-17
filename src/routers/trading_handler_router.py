@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from config import trading_client_handler
 
 
-from definitions.trading_client_definitions import AccountType
+from definitions.account_definitions import AccountType
 
 tradingRouter = APIRouter()
 

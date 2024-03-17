@@ -7,7 +7,7 @@ from definitions.order_definitions import (
     TrailingStopType,
 )
 from definitions.securities_definitions import TradableSecurity, OptionSide
-from definitions.trading_client_definitions import AccountType
+from definitions.account_definitions import AccountType
 
 import docker
 

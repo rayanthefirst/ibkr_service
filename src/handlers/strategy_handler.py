@@ -4,7 +4,7 @@ from typing import List
 
 from definitions.strategy_definitions import StrategyStatus
 
-from strategies import STRATEGIES
+from clients.strategy_clients import STRATEGIES
 from handlers.market_data_handler import MarketDataHandler
 from handlers.trading_client_handler import TradingClientHandler
 from handlers.storage_client_handler import StorageClientHandler
@@ -12,8 +12,8 @@ from handlers.storage_client_handler import StorageClientHandler
 from config import TRADING_CLIENT, MARKET_DATA_CLIENT, STORAGE_CLIENT
 
 
-from strategies.base_strategy import BaseStrategy
-from storage_clients.base_storage_client import BaseStorageClient
+from clients.strategy_clients.base_strategy import BaseStrategy
+from clients.storage_clients.base_storage_client import BaseStorageClient
 
 logger = logging.getLogger(__name__)
 

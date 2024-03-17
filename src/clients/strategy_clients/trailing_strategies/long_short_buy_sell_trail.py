@@ -1,4 +1,4 @@
-from strategies.trailing_strategies.long_short_neutral_buy_sell_trail import (
+from clients.strategy_clients.trailing_strategies.long_short_neutral_buy_sell_trail import (
     LongShortNeutralBuySellTrail,
 )
 

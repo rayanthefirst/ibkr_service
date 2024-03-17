@@ -1,5 +1,5 @@
 import pytest
-from src.trading_clients.ibkr_rest_client import IBKR_Rest_Client
+from src.account_clients.ibkr_rest_client import IBKR_Rest_Client
 
 
 class TestIBKR_Rest_Client:

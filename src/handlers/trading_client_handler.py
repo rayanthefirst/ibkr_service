@@ -6,11 +6,11 @@ import docker
 
 from utils.cipher import encrypt_str, decrypt_str
 
-from trading_clients import TRADING_CLIENTS
-from trading_clients.base_trading_client import BaseTradingClient
-from storage_clients.base_storage_client import BaseStorageClient
+from clients.account_clients.base_account_client import BaseTradingClient
+from clients.account_clients import TRADING_CLIENTS
+from clients.storage_clients.base_storage_client import BaseStorageClient
 
-from definitions.trading_client_definitions import AccountStatus, AccountType
+from definitions.account_definitions import AccountStatus, AccountType
 
 logger = logging.getLogger(__name__)
 
@@ -53,9 +53,11 @@ class TradingClientHandler:
     
     def get_trading_clients(self):
         return [
-            {   "trading_client_account_user": encrypt_str(trading_client.user),
+            {   
+                "name": trading_client.alias, 
+                # "trading_client_account_user": encrypt_str(trading_client.user),
                 "trading_client_type": trading_client.name,
-                "trading_client_id": trading_client.trading_client_id,
+                # "trading_client_id": trading_client.trading_client_id,
                 "trading_client_account_type": trading_client.account_type.value,
                 # "ibkrAccountId": trading_client.accountId if trading_client.accountId == None else encrypt_str(trading_client.accountId),
                 "status": self.get_trading_client_status(trading_client.trading_client_id)

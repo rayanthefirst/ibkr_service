@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from trading_clients.base_trading_client import BaseTradingClient
-from storage_clients.base_storage_client import BaseStorageClient
-from market_data_clients.base_market_data_client import BaseMarketDataClient
+from clients.account_clients.base_account_client import BaseTradingClient
+from clients.storage_clients.base_storage_client import BaseStorageClient
+from clients.market_data_clients.base_market_data_client import BaseMarketDataClient
 
 from data_classes.contract import Contract
 from data_classes.portfolio import Portfolio

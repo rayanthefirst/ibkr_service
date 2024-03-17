@@ -1,13 +1,13 @@
 import logging
 import time
 
-from storage_clients.base_storage_client import BaseStorageClient
+from clients.storage_clients.base_storage_client import BaseStorageClient
 from pymongo.mongo_client import MongoClient as MG
 from definitions.order_definitions import OrderState, OrderAction
 from definitions.strategy_definitions import StrategyStatus
 from data_classes.contract import Contract
 
-from storage_clients.storage_exceptions import (
+from clients.storage_clients.storage_exceptions import (
     StorageConnectionError,
     StorageWriteError,
     StorageReadError,

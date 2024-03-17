@@ -1,7 +1,7 @@
 import logging
 
 from config import STORAGE_CLIENT
-from storage_clients import STORAGE_CLIENTS
+from clients.storage_clients import STORAGE_CLIENTS
 
 logger = logging.getLogger(__name__)
 

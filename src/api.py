@@ -1,14 +1,11 @@
 from config import FASTAPI_HOST, FASTAPI_LOG_LEVEL, FASTAPI_PORT, FASTAPI_ENV
 import utils.logging_settings
+from routers.main_router import mainRouter
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-from routers.market_data_handler_router import marketDataRouter
-from routers.storage_handler_router import storageRouter
-from routers.strategy_handler_router import strategyRouter
-from routers.trading_handler_router import tradingRouter
 
 app = FastAPI()
 
@@ -20,10 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(strategyRouter, prefix="/strategy")
-app.include_router(tradingRouter, prefix="/trading_accounts")
-app.include_router(marketDataRouter, prefix="/market_data")
-app.include_router(storageRouter, prefix="/storage")
+app.include_router(mainRouter)
 
 
 if __name__ == "__main__":

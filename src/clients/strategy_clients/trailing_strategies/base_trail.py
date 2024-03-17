@@ -2,12 +2,12 @@ from decimal import Decimal
 import time
 from data_classes.contract import Contract
 from data_classes.portfolio import Portfolio
-from market_data_clients.base_market_data_client import (
+from clients.market_data_clients.base_market_data_client import (
     BaseMarketDataClient,
 )
-from storage_clients.base_storage_client import BaseStorageClient
-from trading_clients.base_trading_client import BaseTradingClient
-from strategies.base_strategy import BaseStrategy
+from clients.storage_clients.base_storage_client import BaseStorageClient
+from clients.account_clients.base_account_client import BaseTradingClient
+from clients.strategy_clients.base_strategy import BaseStrategy
 
 from definitions.order_definitions import (
     OrderState,

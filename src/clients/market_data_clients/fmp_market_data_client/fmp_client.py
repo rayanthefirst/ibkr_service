@@ -1,7 +1,7 @@
 import logging
 from requests import get
 
-from market_data_clients.base_market_data_client import BaseMarketDataClient
+from clients.market_data_clients.base_market_data_client import BaseMarketDataClient
 from config import MARKET_DATA_CLIENT
 
 logger = logging.getLogger(__name__)

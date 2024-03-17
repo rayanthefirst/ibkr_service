@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from market_data_clients import MARKET_DATA_CLIENTS
+from clients.market_data_clients import MARKET_DATA_CLIENTS
 
 from config import MARKET_DATA_CLIENT
 
