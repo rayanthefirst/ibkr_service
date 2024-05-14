@@ -11,7 +11,7 @@ from .ibkr_definitions import (
     IBKROrderTIF,
     IBKRTrailingStopType,
 )
-from Config import SLEEP_SECONDS, RETRY_COUNT, IBKR_REST_CONTAINER_IMAGE, NETWORK_NAME, CONTAINER_START_DELAY
+from Config import SLEEP_SECONDS, RETRY_COUNT, IBKR_REST_CONTAINER_IMAGE, NETWORK_NAME, CONTAINER_START_DELAY, ACCOUNT_CONTAINER_PREFIX
 from Enums.order_definitions import (
     OrderAction,
     OrderTIF,
@@ -38,7 +38,7 @@ class IBKRRestClient(BaseAccountClient):
 
     def __init__(self, alias, username, password, account_type: AccountType, **kwargs):
         super().__init__(alias, account_type, username=username, password=password, **kwargs)
-        self.host_url = f"https://account_client_{self.id}:5000/v1/api"
+        self.host_url = f"https://{ACCOUNT_CONTAINER_PREFIX}{self.id}:5000/v1/api"
         self.accountId = None # Set in connect method on client start
 
     def check_response(self, resp: Response) -> bool:
@@ -72,11 +72,8 @@ class IBKRRestClient(BaseAccountClient):
 
     # ABSTRACT BASE CLASS METHODS
     async def create_account_container(self, **kwargs):
-        accountUser = kwargs.get("username")
-        accountPassword = kwargs.get("password")
-        # return await self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword}, name="account_client_" + self.id)
-        return await self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword}, name="account_client_" + self.id, network=NETWORK_NAME)
-        # return await self.dockerClient.containers.create(image=IBKR_REST_CONTAINER_IMAGE, detach=True, environment={"IBEAM_ACCOUNT": accountUser, "IBEAM_PASSWORD": accountPassword, "IBEAM_KEY": KEY_BYTES}, name="account_client_" + self.id, network=NETWORK_NAME)
+        ...
+        
         
     async def connect(self):
         await super().connect()

@@ -1,13 +1,12 @@
 import logging
 import time
 
-from clients.storage_clients.base_storage_client import BaseStorageClient
 from pymongo.mongo_client import MongoClient as MG
 from Enums.order_definitions import OrderState, OrderAction
 from Enums.strategy_definitions import StrategyStatus
 from Models.contract import Contract
 
-from clients.storage_clients.storage_exceptions import (
+from .storage_exceptions import (
     StorageConnectionError,
     StorageWriteError,
     StorageReadError,
@@ -15,7 +14,7 @@ from clients.storage_clients.storage_exceptions import (
     StorageDeleteError,
 )
 
-from config import (
+from Config import (
     MONGO_CONNECTION_STRING,
     MONGO_DATABASE,
     MONGO_DATABASE_COLLECTION_ORDER_DATA,
@@ -28,12 +27,12 @@ from config import (
 logger = logging.getLogger(__name__)
 
 
-class MongoClient(BaseStorageClient):
+class MongoClient():
     name = "MongoClient"
 
     def __init__(self, **kwargs):
         self.connect()
-
+        
     def connect(self):
         # Connect to the Mongo database
         logger.info("Connecting to Mongo database")
@@ -258,3 +257,7 @@ class MongoClient(BaseStorageClient):
             if count == RETRY_COUNT:
                 logger.critical("Critical error removing account from Mongo database")
                 raise StorageDeleteError
+            
+
+
+mongoClient = MongoClient()

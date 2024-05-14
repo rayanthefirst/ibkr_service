@@ -3,7 +3,7 @@ from fastapi import APIRouter
 # from routers.market_data_handler_router import marketDataRouter
 # from routers.storage_handler_router import storageRouter
 # from routers.strategy_handler_router import strategyRouter
-from .AccountRoutes.AccountRoutes import accountRouter
+from .AccountRoutes.AccountRouter import accountRouter
 
 
 mainRouter = APIRouter()

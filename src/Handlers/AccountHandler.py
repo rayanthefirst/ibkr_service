@@ -4,28 +4,32 @@ import inspect
 
 import docker
 
-from utils.cipher import encrypt_str, decrypt_str
+from Utils.cipher import encrypt_str, decrypt_str
 
-from clients.account_clients.base_account_client import BaseAccountClient
-from clients.account_clients import ACCOUNT_CLIENTS
+from Brokerages.base_account_client import BaseAccountClient
+from Brokerages import ACCOUNT_CLIENTS
 
-from config import defualt_storage_client
+from MongoDB.mongo_client import mongoClient
+
+from Config import ACCOUNT_CONTAINER_PREFIX
+
+
 
 from Enums.account_definitions import AccountStatus, AccountType
 
 logger = logging.getLogger(__name__)
 
-class AccountClientHandler:
+class AccountHandler:
     def __init__(self) -> None:
         logger.info("Initializing trading client handler")
-        self.storage_client = defualt_storage_client
+        self.storage_client = mongoClient
         self.trading_clients: List[BaseAccountClient] = []
         self.dockerClient = docker.DockerClient()
         
         self.load_trading_clients()
 
     def load_trading_clients(self):
-        for container in self.dockerClient.containers.list(all=True, filters={"name":"account_client_*"}):
+        for container in self.dockerClient.containers.list(all=True, filters={"name":ACCOUNT_CONTAINER_PREFIX + "*"}):
             container.stop()
             container.remove()
 

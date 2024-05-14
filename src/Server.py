@@ -1,10 +1,15 @@
-from Config import FASTAPI_HOST, FASTAPI_LOG_LEVEL, FASTAPI_PORT, FASTAPI_ENV, MONGO_CONNECTION_STRING, IBKR_REST_CONTAINER_IMAGE
-
+from Config import FASTAPI_HOST, FASTAPI_LOG_LEVEL, FASTAPI_PORT, FASTAPI_ENV
 # Logging
 import logging
 import Utils.logging_settings
 logger = logging.getLogger(__name__)
 logger.info(f"Starting sever in {FASTAPI_ENV} environment")
+
+# MongoDB
+# from MongoDB.mongo_client import mongoClient
+
+# Docker
+from Containerization.Docker.docker_client import containerClient
 
 # FastAPI
 from fastapi import FastAPI
@@ -20,8 +25,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from APIRoutes.MainRouter import mainRouter
-app.include_router(mainRouter)
+# from APIRoutes.MainRouter import mainRouter
+# app.include_router(mainRouter)
 
 
 if __name__ == "__main__":
