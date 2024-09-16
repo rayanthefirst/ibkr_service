@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 from logging import handlers
-from config import LOGGING_LEVEL, LOGGING_FROMADDR, LOGGING_TOADDR, LOGGING_PASSWORD
+from Config import LOGGING_LEVEL, LOGGING_FROMADDR, LOGGING_TOADDR, LOGGING_PASSWORD
 
 # Logging basic configurations
 # Logging
